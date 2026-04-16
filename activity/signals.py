@@ -8,7 +8,6 @@ from comments.models import Comment
 @receiver(post_save, sender=Task)
 def task_activity_log(sender, instance, created, **kwargs):
     if created:
-
         action = ActionTypeChoice.CREATED_TASK
         desc = f"Yangi vazifa yaratildi: {instance.title}"
     else:

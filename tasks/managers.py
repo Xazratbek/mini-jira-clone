@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 class TaskManager(models.Manager):
     def active(self):
@@ -11,6 +12,5 @@ class TaskManager(models.Manager):
         return self.filter(project__id=project_id)
 
     def overdue(self, date):
-        from datetime import date
         today = date.today()
         return self.filter(due_date__lt=today)

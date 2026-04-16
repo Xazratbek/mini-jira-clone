@@ -29,7 +29,6 @@ class Task(models.Model):
 
     objects = TaskManager()
 
-
     def __str__(self):
         return f"Task: {self.title} | Created by: {self.created_by} | Assigned to: {self.assigned_to}"
 
