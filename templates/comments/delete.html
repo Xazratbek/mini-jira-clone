@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Izohni o'chirish | PulseBoard{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Izohni o'chirishni tasdiqlang.</h1>
+    <p class="page-subtitle">Bu izoh task detail sahifasidan olib tashlanadi.</p>
+</section>
+
+<section class="panel stagger" style="max-width: 760px;">
+    <p class="card-text">{{ object.content }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="button-row">
+            <button type="submit" class="btn btn-danger">Ha, o'chirish</button>
+            <a href="{{ object.task.get_absolute_url }}" class="btn btn-secondary">Bekor qilish</a>
+        </div>
+    </form>
+</section>
+{% endblock content %}

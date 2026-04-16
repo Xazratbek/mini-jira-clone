@@ -9,4 +9,5 @@ class ProjectMembersInline(admin.TabularInline):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     inlines = [ProjectMembersInline]
-    list_display = ["name","description","owner","created_at","updated_at"]
+    list_display = ["id","name","description","owner","created_at","updated_at","is_active"]
+    ordering = ["-id"]

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} | PulseBoard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .task-layout {
+        display: grid;
+        grid-template-columns: 1.35fr 0.85fr;
+        gap: 1rem;
+    }
+
+    .task-layout > * {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .fact-list {
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .fact-box {
+        padding: 1rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .fact-box span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 0.4rem;
+    }
+
+    .comment-stream {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1rem;
+    }
+
+    .comment-card {
+        padding: 1rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .comment-card header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .comment-card p {
+        color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+        .task-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">{{ task.title }}</h1>
+    <p class="page-subtitle">{{ task.description }}</p>
+</section>
+
+<section class="task-layout stagger">
+    <div>
+        <article class="panel">
+            <h2 class="card-title" style="font-size: 1.35rem;">Issue brief</h2>
+            <p class="card-text" style="margin-top: 0.8rem;">{{ task.description }}</p>
+        </article>
+
+        <article class="panel">
+            <div class="grid" style="margin-top: 1rem;">
+                <div class="stat-card">
+                    <span>Project</span>
+                    <strong><a href="{{ task.project.get_absolute_url }}" style="text-decoration: none;">{{ task.project.name }}</a></strong>
+                </div>
+                <div class="stat-card">
+                    <span>Created by</span>
+                    <strong>{{ task.created_by.get_full_name|default:task.created_by.username }}</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="button-row" style="justify-content: space-between; align-items: center;">
+                <h2 class="card-title" style="font-size: 1.2rem;">Izohlar</h2>
+                <a href="{% url 'comment-create' %}?task={{ task.pk }}" class="btn btn-secondary">Izoh qo'shish</a>
+            </div>
+            {% if task.comments.all %}
+            <div class="comment-stream">
+                {% for comment in task.comments.all %}
+                <div class="comment-card">
+                    <header>
+                        <div>
+                            <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                            <div class="helper-text">{{ comment.created_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                        {% if comment.author == request.user %}
+                        <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-danger">O'chirish</a>
+                        {% endif %}
+                    </header>
+                    <p>{{ comment.content }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Hali izoh qoldirilmagan.</p>
+            </div>
+            {% endif %}
+        </article>
+    </div>
+
+    <aside>
+        <article class="panel">
+            <div class="fact-list" style="margin-top: 0.8rem;">
+                <div class="fact-box">
+                    <span>Status</span>
+                    <strong class="badge {% if task.status == 'done' %}badge-success{% elif task.status == 'in_progress' %}badge-warn{% else %}badge{% endif %}">{{ task.get_status_display }}</strong>
+                </div>
+                <div class="fact-box">
+                    <span>Priority</span>
+                    <strong class="badge {% if task.priority == 'high' %}badge-danger{% elif task.priority == 'medium' %}badge-warn{% else %}badge-success{% endif %}">{{ task.get_priority_display }}</strong>
+                </div>
+                <div class="fact-box">
+                    <span>Assigned to</span>
+                    <strong>{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</strong>
+                </div>
+                <div class="fact-box">
+                    <span>Due date</span>
+                    <strong>{{ task.due_date|date:"d.m.Y" }}</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="button-row" style="margin-top: 0.8rem;">
+                <a href="{% url 'task-update' task.pk %}" class="btn btn-primary">Tahrirlash</a>
+                <a href="{% url 'task-delete' task.pk %}" class="btn btn-danger">O'chirish</a>
+            </div>
+        </article>
+    </aside>
+</section>
+{% endblock content %}

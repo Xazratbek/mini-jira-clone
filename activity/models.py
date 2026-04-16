@@ -17,7 +17,9 @@ class ActivityLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Log on task: {self.task.title} | User: {self.user.get_full_name()} | Desc: {self.description[:30]}... | Action type: {self.action_type}"
+        task_title = self.task.title if self.task else "Deleted Task"
+        user_name = self.user.get_full_name() if self.user else "Unknown User"
+        return f"Log on task: {task_title} | User: {user_name} | Desc: {self.description[:30]}... | Action type: {self.action_type}"
 
     class Meta:
         db_table = "activity_log"

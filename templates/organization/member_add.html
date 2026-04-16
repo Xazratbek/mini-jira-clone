@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}A'zo qo'shish | {{ organization.name }}{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">{{ organization.name }} uchun a'zo qo'shing.</h1>
+    <p class="page-subtitle">Workspace ichiga mavjud foydalanuvchini tanlab, unga rol biriktiring.</p>
+</section>
+
+<section class="panel stagger" style="max-width: 920px;">
+    {% if form.non_field_errors %}
+    <ul class="errorlist">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="{{ form.user.id_for_label }}">Foydalanuvchi</label>
+            {{ form.user }}
+            {{ form.user.errors }}
+        </div>
+        <div>
+            <label for="{{ form.role.id_for_label }}">Rol</label>
+            {{ form.role }}
+            {{ form.role.errors }}
+        </div>
+        <div class="button-row">
+            <button type="submit" class="btn btn-primary">A'zo qo'shish</button>
+            <a href="{{ organization.get_absolute_url }}" class="btn btn-secondary">Orqaga</a>
+        </div>
+    </form>
+</section>
+{% endblock content %}

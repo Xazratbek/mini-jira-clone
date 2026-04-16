@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Vazifalar | PulseBoard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .filters-panel form {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 0.85rem;
+        align-items: end;
+    }
+
+    .title-cell strong {
+        display: block;
+    }
+
+    .title-cell span {
+        color: var(--muted);
+        font-size: 0.84rem;
+    }
+
+    .mini-actions {
+        display: flex;
+        gap: 0.6rem;
+    }
+
+    @media (max-width: 1080px) {
+        .filters-panel form {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .filters-panel form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Issue queue, status va due date bir jadvalda.</h1>
+    <p class="page-subtitle">Task list Jiradagi issue table hissini beradi, lekin qorong'i editorial dashboard uslubida. Filterlar mavjud query param'lar bilan backendga ulanadi.</p>
+</section>
+
+<section class="panel filters-panel stagger">
+    <form method="get">
+        <div>
+            <label for="id_status">Status</label>
+            <select name="status" id="id_status">
+                <option value="">Barchasi</option>
+                <option value="todo" {% if request.GET.status == "todo" %}selected{% endif %}>Todo</option>
+                <option value="in_progress" {% if request.GET.status == "in_progress" %}selected{% endif %}>In progress</option>
+                <option value="done" {% if request.GET.status == "done" %}selected{% endif %}>Done</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_priority">Priority</label>
+            <select name="priority" id="id_priority">
+                <option value="">Barchasi</option>
+                <option value="low" {% if request.GET.priority == "low" %}selected{% endif %}>Low</option>
+                <option value="medium" {% if request.GET.priority == "medium" %}selected{% endif %}>Medium</option>
+                <option value="high" {% if request.GET.priority == "high" %}selected{% endif %}>High</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_assigned_to">Assigned to ID</label>
+            <input type="text" name="assigned_to" id="id_assigned_to" value="{{ request.GET.assigned_to }}">
+        </div>
+        <div>
+            <label for="id_q">Qidiruv</label>
+            <input type="text" name="q" id="id_q" value="{{ request.GET.q }}" placeholder="Title yoki description">
+        </div>
+        <div class="button-row">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{% url 'task-create' %}" class="btn btn-secondary">Yangi task</a>
+        </div>
+    </form>
+</section>
+
+{% if tasks %}
+<section class="panel table-wrap stagger" style="margin-top: 1rem;">
+    <table>
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Loyiha</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assignee</th>
+                <th>Due</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td class="title-cell">
+                    <strong><a href="{{ task.get_absolute_url }}" style="text-decoration: none;">{{ task.title }}</a></strong>
+                    <span>{{ task.description|truncatewords:12 }}</span>
+                </td>
+                <td>{{ task.project.name }}</td>
+                <td>
+                    <span class="badge {% if task.status == 'done' %}badge-success{% elif task.status == 'in_progress' %}badge-warn{% else %}badge{% endif %}">
+                        {{ task.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {% if task.priority == 'high' %}badge-danger{% elif task.priority == 'medium' %}badge-warn{% else %}badge-success{% endif %}">
+                        {{ task.get_priority_display }}
+                    </span>
+                </td>
+                <td>{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</td>
+                <td>{{ task.due_date|date:"d.m.Y" }}</td>
+                <td>
+                    <div class="mini-actions">
+                        <a href="{% url 'task-update' task.pk %}" class="btn btn-secondary">Edit</a>
+                        <a href="{% url 'task-delete' task.pk %}" class="btn btn-danger">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">«</a>
+            <a href="?page={{ page_obj.previous_page_number }}">‹</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="current">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">»</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+{% else %}
+<section class="panel empty-state stagger">
+    <span class="eyebrow">No tasks</span>
+    <h2 class="card-title">Hali task yo'q.</h2>
+    <p>Task yarating yoki filterlarni tozalang. Mavjud `TaskListView` qaytargan dataset shu bo'limda ko'rinadi.</p>
+    <a href="{% url 'task-create' %}" class="btn btn-primary">Task yaratish</a>
+</section>
+{% endif %}
+{% endblock content %}

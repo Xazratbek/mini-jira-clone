@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Organization yaratish | PulseBoard{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Yangi organization yarating.</h1>
+    <p class="page-subtitle">Yangi workspace ochib, keyin unga project va tasklar bog'laysiz.</p>
+</section>
+
+<section class="panel stagger" style="max-width: 980px;">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="button-row">
+            <button type="submit" class="btn btn-primary">Saqlash</button>
+            <a href="{% url 'organization-list' %}" class="btn btn-secondary">Orqaga</a>
+        </div>
+    </form>
+</section>
+{% endblock content %}

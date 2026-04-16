@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Ro'yxatdan o'tish | PulseBoard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .signup-shell {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 1rem;
+    }
+
+    .signup-side,
+    .signup-form {
+        min-height: 72vh;
+    }
+
+    .signup-side {
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+    }
+
+    .signup-form {
+        display: grid;
+        align-content: center;
+        gap: 1rem;
+    }
+
+    .info-block {
+        padding: 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .info-block strong {
+        display: block;
+        margin-bottom: 0.35rem;
+    }
+
+    .info-block span {
+        color: var(--muted);
+        font-size: 0.88rem;
+    }
+
+    .signup-form form {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .signup-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .field-box p {
+        margin-top: 0.35rem;
+        color: var(--muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 940px) {
+        .signup-shell,
+        .signup-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-header stagger">
+    <span class="eyebrow">Aesthetic Direction: Tactical workspace onboarding</span>
+    <h1 class="page-title">Yangi team hisobini oching va issue oqimini boshlang.</h1>
+    <p class="page-subtitle">Signup form mavjud `CustomUserCreationForm` asosida ishlaydi. Username, email va parol maydonlari frontend ichida qayta joylashtirildi, backend validatsiyasi esa o'zgarmadi.</p>
+</section>
+
+<section class="signup-shell stagger">
+    <article class="panel signup-side">
+        <span class="eyebrow">Why it works</span>
+        <h2 class="card-title" style="font-size: 1.6rem;">Jamoa uchun minimal, lekin to'liq issue tracking skeleti.</h2>
+        <p class="card-text">Ro'yxatdan o'tgan foydalanuvchi bevosita loyiha va task oqimiga ulanadi. Frontend Jiradagi ish logikasini saqlab, dizayn jihatdan ancha xarakterli ko'rinishga o'tkazildi.</p>
+
+        <div class="info-block">
+            <strong>Loyiha ownership</strong>
+            <span>Owner va members modeldan to'g'ridan-to'g'ri olinadi.</span>
+        </div>
+        <div class="info-block">
+            <strong>Task lifecycle</strong>
+            <span>Todo, in progress va done statuslar detail va list sahifalarda yaqqol ko'rsatiladi.</span>
+        </div>
+        <div class="info-block">
+            <strong>Activity trace</strong>
+            <span>Feed sahifasi yaratish, yangilash va o'chirish oqimlarini timeline ko'rinishida chiqaradi.</span>
+        </div>
+    </article>
+
+    <article class="panel signup-form">
+        <span class="eyebrow">Create account</span>
+        <h2 class="card-title" style="font-size: 1.55rem;">PulseBoard hisobi</h2>
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="signup-grid">
+                <div class="field-box">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.first_name.id_for_label }}">Ism</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.last_name.id_for_label }}">Familiya</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.organization_name.id_for_label }}">Organization</label>
+                    {{ form.organization_name }}
+                    {{ form.organization_name.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.password1.id_for_label }}">Parol</label>
+                    {{ form.password1 }}
+                    {{ form.password1.errors }}
+                </div>
+                <div class="field-box">
+                    <label for="{{ form.password2.id_for_label }}">Parolni tasdiqlang</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
+            </div>
+            <div class="button-row">
+                <button type="submit" class="btn btn-primary">Hisob yaratish</button>
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock content %}

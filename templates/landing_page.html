@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}PulseBoard | Mini Jira Clone{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .hero-grid,
+    .feature-layout,
+    .ops-grid,
+    .cta-panel {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .hero-grid {
+        grid-template-columns: 1.35fr 0.9fr;
+        align-items: stretch;
+    }
+
+    .hero-panel {
+        position: relative;
+        overflow: hidden;
+        padding: 1.6rem;
+    }
+
+    .hero-panel::before,
+    .hero-panel::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(10px);
+    }
+
+    .hero-panel::before {
+        width: 240px;
+        height: 240px;
+        top: -70px;
+        right: -40px;
+        background: radial-gradient(circle, rgba(94, 234, 212, 0.24), transparent 68%);
+    }
+
+    .hero-panel::after {
+        width: 300px;
+        height: 300px;
+        left: -90px;
+        bottom: -140px;
+        background: radial-gradient(circle, rgba(255, 179, 71, 0.16), transparent 70%);
+    }
+
+    .hero-headline {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 1rem;
+        max-width: 720px;
+    }
+
+    .hero-headline h1 {
+        font-family: "Unbounded", sans-serif;
+        font-size: clamp(2.3rem, 5.2vw, 5.2rem);
+        line-height: 1.02;
+        letter-spacing: -0.06em;
+    }
+
+    .hero-headline p {
+        max-width: 58ch;
+        color: var(--muted);
+        font-size: 1.04rem;
+    }
+
+    .kicker-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .signal-pill {
+        padding: 0.6rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 0.82rem;
+    }
+
+    .hero-side {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .ops-board {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .ops-item {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 0.9rem;
+        align-items: start;
+        padding: 0.95rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .ops-item strong {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.82rem;
+    }
+
+    .ops-item span,
+    .ops-item p {
+        color: var(--muted);
+        font-size: 0.84rem;
+    }
+
+    .feature-layout {
+        grid-template-columns: 1.05fr 1.35fr;
+    }
+
+    .feature-stack {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .feature-card {
+        padding: 1.2rem;
+    }
+
+    .feature-card h3 {
+        font-family: "Unbounded", sans-serif;
+        font-size: 1rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .feature-card p {
+        color: var(--muted);
+    }
+
+    .feature-art {
+        position: relative;
+        overflow: hidden;
+        min-height: 100%;
+    }
+
+    .rail {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1rem;
+    }
+
+    .rail-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .rail-card strong {
+        display: block;
+    }
+
+    .rail-card span {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.7;
+    }
+
+    .orb.one {
+        width: 180px;
+        height: 180px;
+        top: 10%;
+        right: 8%;
+        background: radial-gradient(circle, rgba(94, 234, 212, 0.28), transparent 70%);
+    }
+
+    .orb.two {
+        width: 240px;
+        height: 240px;
+        left: -5%;
+        bottom: -8%;
+        background: radial-gradient(circle, rgba(255, 179, 71, 0.18), transparent 72%);
+    }
+
+    .ops-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cta-panel {
+        grid-template-columns: 1.25fr auto;
+        align-items: center;
+        padding: 1.3rem;
+    }
+
+    .cta-panel p {
+        color: var(--muted);
+        max-width: 56ch;
+    }
+
+    @media (max-width: 980px) {
+        .hero-grid,
+        .feature-layout,
+        .ops-grid,
+        .cta-panel {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<section class="page-header stagger">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">
+        {% if organization_name %}{{ organization_name }} organizationi{% else %}Sizning workspace{% endif %}
+        bo'yicha faqat sizga tegishli loyihalar va vazifalar holati.
+    </p>
+</section>
+
+<section class="stats-grid stagger">
+    <article class="stat-card">
+        <span>Mening loyihalarim</span>
+        <strong>{{ active_projects }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Yakunlangan tasklar</span>
+        <strong>{{ tugagan_vazifalar }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Ochiq tasklar</span>
+        <strong>{{ open_tasks }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Menga biriktirilgan</span>
+        <strong>{{ assigned_tasks }}</strong>
+    </article>
+</section>
+
+<section class="grid stagger" style="margin-top: 1rem;">
+    <article class="panel">
+        <h2 class="card-title">Loyihalar</h2>
+        <p class="card-text">Loyihalarni ko'rish, yangisini yaratish yoki mavjudini tahrirlash.</p>
+        <div class="button-row" style="margin-top: 1rem;">
+            <a href="{% url 'project-list' %}" class="btn btn-primary">Loyihalar</a>
+            <a href="{% url 'project-create' %}" class="btn btn-secondary">Yangi loyiha</a>
+        </div>
+    </article>
+    <article class="panel">
+        <h2 class="card-title">Vazifalar</h2>
+        <p class="card-text">Task list, filterlar va detail sahifalarga o'tish.</p>
+        <div class="button-row" style="margin-top: 1rem;">
+            <a href="{% url 'task-list' %}" class="btn btn-primary">Vazifalar</a>
+            <a href="{% url 'task-create' %}" class="btn btn-secondary">Yangi task</a>
+        </div>
+    </article>
+    <article class="panel">
+        <h2 class="card-title">Faoliyat</h2>
+        <p class="card-text">Activity feed faqat admin foydalanuvchi uchun ko'rinadi.</p>
+        <div class="button-row" style="margin-top: 1rem;">
+            {% if user.is_superuser %}
+            <a href="{% url 'activity-feed' %}" class="btn btn-primary">Faoliyat feed</a>
+            {% else %}
+            <span class="btn btn-secondary" style="cursor: default; opacity: 0.7;">Faqat admin</span>
+            {% endif %}
+        </div>
+    </article>
+</section>
+{% else %}
+<section class="page-header stagger">
+    <span class="eyebrow">Aesthetic Direction: Midnight operations room</span>
+    <h1 class="page-title">Jira ilhomidagi issue flow, ammo ko'proq atmosfera va kuchliroq ritm bilan.</h1>
+    <p class="page-subtitle">PulseBoard loyihalar, vazifalar va activity feedni bitta navigatsiyada birlashtiradi. Mavjud Django backend bilan ishlaydi, foydalanuvchi oqimlari esa frontendda qayta yig'ilgan.</p>
+</section>
+
+<section class="hero-grid stagger">
+    <article class="panel hero-panel">
+        <div class="hero-headline">
+            <div class="kicker-row">
+                <span class="signal-pill">Projects</span>
+                <span class="signal-pill">Tasks</span>
+                <span class="signal-pill">Activity Feed</span>
+            </div>
+            <h1>Teams ship faster when the board feels alive.</h1>
+            <p>Landing va ichki sahifalar Jiradan ilhomlangan: aniq ownership, task status, due date va team activity markaziy o'rinda. Vizual yo'nalish esa default SaaS template emas, balki qorong'i control-room estetikasida yozildi.</p>
+            <div class="button-row">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'project-list' %}" class="btn btn-primary">Loyihalarga o'tish</a>
+                    <a href="{% url 'task-list' %}" class="btn btn-secondary">Task stream</a>
+                {% else %}
+                    <a href="{% url 'signup' %}" class="btn btn-primary">Hisob ochish</a>
+                    <a href="{% url 'login' %}" class="btn btn-secondary">Kirish</a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+
+    <aside class="hero-side">
+        <div class="panel">
+            <span class="eyebrow">Realtime pulse</span>
+            <div class="ops-board">
+                <div class="ops-item">
+                    <strong>{{ active_projects }}</strong>
+                    <div>
+                        <p>Faol loyiha</p>
+                        <span>Teamlar ochiq boardlarda harakatda.</span>
+                    </div>
+                </div>
+                <div class="ops-item">
+                    <strong>{{ tugagan_vazifalar }}</strong>
+                    <div>
+                        <p>Yakunlangan task</p>
+                        <span>Done holatiga o'tgan vazifalar soni.</span>
+                    </div>
+                </div>
+                <div class="ops-item">
+                    <strong>{{ active_users }}</strong>
+                    <div>
+                        <p>Faol foydalanuvchi</p>
+                        <span>Hozir tizimdagi ishchi oqim hajmi.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="eyebrow">Workflow note</span>
+            <p class="card-text">Sidebar ochilib-yopiladi, ichki sahifalarda bir xil skelet ishlaydi va mavjud backend endpointlaridan tashqariga chiqilmaydi.</p>
+        </div>
+    </aside>
+</section>
+
+<section class="feature-layout stagger" style="margin-top: 1rem;">
+    <div class="feature-stack">
+        <article class="panel feature-card">
+            <span class="eyebrow">Projects</span>
+            <h3>Workspace level ownership</h3>
+            <p>Har bir loyiha owner, team members va active status bilan ko'rinadi. Cardlar task soni va yaratilgan sanani ochiq ko'rsatadi.</p>
+        </article>
+        <article class="panel feature-card">
+            <span class="eyebrow">Tasks</span>
+            <h3>Priority va deadline markazda</h3>
+            <p>Task list page qidiruv va filter oqimiga mos yozilgan. Detail sahifada loyiha, creator, assignee va deadline ko'rinadi.</p>
+        </article>
+        <article class="panel feature-card">
+            <span class="eyebrow">Activity</span>
+            <h3>Team harakati bir timeline'da</h3>
+            <p>Created, updated, deleted va commented actionlar timeline tarzida ko'rsatiladi. Bu Jiradagi audit oqimining soddalashtirilgan, lekin ko'rinarli talqini.</p>
+        </article>
+    </div>
+
+    <article class="panel feature-art">
+        <span class="orb one"></span>
+        <span class="orb two"></span>
+        <span class="eyebrow">Board rhythm</span>
+        <h2 class="card-title" style="font-size: 1.4rem; max-width: 18ch;">Predictable layout emas, operatsion dashboard kompozitsiyasi.</h2>
+        <p class="card-text">Asimmetrik grid, qalin typography va yumshoq neon accentlar bilan sahifalar bir xil brand ostida turadi. Purple-on-white emas, kontrol xonasi ranglaridan olingan palitra tanlandi.</p>
+        <div class="rail">
+            <div class="rail-card">
+                <div>
+                    <strong>Sidebar state</strong>
+                    <span>Desktop va mobile uchun alohida xulq</span>
+                </div>
+                <span class="badge">Adaptive</span>
+            </div>
+            <div class="rail-card">
+                <div>
+                    <strong>Forms</strong>
+                    <span>Create, update, delete oqimlari yagona formatda</span>
+                </div>
+                <span class="badge">Unified</span>
+            </div>
+            <div class="rail-card">
+                <div>
+                    <strong>Landing</strong>
+                    <span>Stats va CTA backenddan keladigan sonlar bilan ishlaydi</span>
+                </div>
+                <span class="badge">Live data</span>
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="ops-grid stagger" style="margin-top: 1rem;">
+    <article class="stat-card">
+        <span>Navigation</span>
+        <strong>01</strong>
+        <p class="card-text">Loyihalar, vazifalar va activity bir tomondan boshqariladi.</p>
+    </article>
+    <article class="stat-card">
+        <span>Motion</span>
+        <strong>02</strong>
+        <p class="card-text">Page load uchun ketma-ket reveal animatsiya qo'llanildi.</p>
+    </article>
+    <article class="stat-card">
+        <span>Consistency</span>
+        <strong>03</strong>
+        <p class="card-text">Barcha sahifalar bir xil radius, border va type rhythm bilan ishlaydi.</p>
+    </article>
+</section>
+
+{% if not user.is_authenticated %}
+<section class="panel cta-panel stagger" style="margin-top: 1rem;">
+    <div>
+        <span class="eyebrow">Start now</span>
+        <h2 class="card-title" style="font-size: 1.5rem;">PulseBoard'ga kirib, birinchi boardni oching.</h2>
+        <p>Ro'yxatdan o'tgan foydalanuvchi darhol loyiha va task oqimiga kira oladi. Backenddagi mavjud auth, project va task url'lari ishlatiladi.</p>
+    </div>
+    <div class="button-row">
+        <a href="{% url 'signup' %}" class="btn btn-primary">Ro'yxatdan o'tish</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+    </div>
+</section>
+{% endif %}
+{% endif %}
+{% endblock content %}

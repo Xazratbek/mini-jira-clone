@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Task yaratish | PulseBoard{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Yangi issue kiriting.</h1>
+    <p class="page-subtitle">`TaskCreateForm` ichidagi title, description, project, assigned_to, status, priority va due_date maydonlari bilan ishlaydi.</p>
+</section>
+
+<section class="panel stagger" style="max-width: 980px;">
+    {% if form.non_field_errors %}
+        <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="{{ form.title.id_for_label }}">Task nomi</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <div>
+            <label for="{{ form.description.id_for_label }}">Tavsif</label>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <div class="form-grid">
+            <div>
+                <label for="{{ form.project.id_for_label }}">Loyiha</label>
+                {{ form.project }}
+                {{ form.project.errors }}
+            </div>
+            <div>
+                <label for="{{ form.assigned_to.id_for_label }}">Assignee</label>
+                {{ form.assigned_to }}
+                {{ form.assigned_to.errors }}
+            </div>
+            <div>
+                <label for="{{ form.status.id_for_label }}">Status</label>
+                {{ form.status }}
+                {{ form.status.errors }}
+            </div>
+            <div>
+                <label for="{{ form.priority.id_for_label }}">Priority</label>
+                {{ form.priority }}
+                {{ form.priority.errors }}
+            </div>
+        </div>
+        <div>
+            <label for="{{ form.due_date.id_for_label }}">Due date</label>
+            {{ form.due_date }}
+            {{ form.due_date.errors }}
+        </div>
+        <div class="button-row">
+            <button type="submit" class="btn btn-primary">Task yaratish</button>
+            <a href="{% url 'task-list' %}" class="btn btn-secondary">Orqaga</a>
+        </div>
+    </form>
+</section>
+{% endblock content %}

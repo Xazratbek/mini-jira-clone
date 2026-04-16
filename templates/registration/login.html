@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Kirish | PulseBoard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .auth-shell {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .auth-showcase,
+    .auth-form-panel {
+        min-height: 70vh;
+    }
+
+    .auth-showcase {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        align-content: space-between;
+        gap: 1.2rem;
+    }
+
+    .auth-showcase::before,
+    .auth-showcase::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    .auth-showcase::before {
+        width: 360px;
+        height: 360px;
+        top: -110px;
+        right: -70px;
+        background: radial-gradient(circle, rgba(94, 234, 212, 0.22), transparent 68%);
+    }
+
+    .auth-showcase::after {
+        width: 280px;
+        height: 280px;
+        left: -70px;
+        bottom: -90px;
+        background: radial-gradient(circle, rgba(255, 179, 71, 0.16), transparent 70%);
+    }
+
+    .auth-copy {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 1rem;
+    }
+
+    .auth-copy h1 {
+        font-family: "Unbounded", sans-serif;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.05;
+        letter-spacing: -0.05em;
+        max-width: 12ch;
+    }
+
+    .auth-copy p,
+    .auth-points li,
+    .auth-form-panel p {
+        color: var(--muted);
+    }
+
+    .auth-points {
+        display: grid;
+        gap: 0.8rem;
+        list-style: none;
+    }
+
+    .auth-points li {
+        padding: 0.85rem 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .auth-form-panel {
+        display: grid;
+        align-content: center;
+        gap: 1rem;
+        max-width: 620px;
+        margin-inline: auto;
+        width: 100%;
+    }
+
+    .auth-form-panel form {
+        margin-top: 0.3rem;
+    }
+
+    .auth-form-panel form p {
+        display: grid;
+        gap: 0.45rem;
+    }
+
+    .auth-form-panel ul.errorlist {
+        margin-bottom: 0.8rem;
+    }
+
+    @media (max-width: 940px) {
+        .auth-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-showcase,
+        .auth-form-panel {
+            min-height: auto;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-header stagger">
+    <span class="eyebrow">Aesthetic Direction: After-hours command deck</span>
+    <h1 class="page-title">PulseBoard'ga qayting va boardni davom ettiring.</h1>
+    <p class="page-subtitle">Login sahifasi landing bilan bir xil rang va typography tizimida ishlaydi. Django auth form maydonlari o'zgartirilmagan, faqat frontend qatlam yangilandi.</p>
+</section>
+
+<section class="auth-shell stagger">
+    <article class="panel auth-showcase">
+        <div class="auth-copy">
+            <span class="eyebrow">Team control</span>
+            <h1>Projects, tasks va activity bir joyda.</h1>
+            <p>Jira'ga yaqin ish mantig'i saqlanadi: avval loyiha, keyin task, keyin activity trace. Frontend esa ko'proq editorial va atmosferik yozildi.</p>
+        </div>
+
+        <ul class="auth-points">
+            <li>Sidebar'dan loyihalar, vazifalar va feed orasida tez o'tish mumkin.</li>
+            <li>Task detail sahifasi owner, assignee, due date va loyiha bilan bog'liq ko'rinadi.</li>
+            <li>Delete va update oqimlari shu frontend ichida confirmation pattern bilan ishlaydi.</li>
+        </ul>
+    </article>
+
+    <article class="panel auth-form-panel">
+        <span class="eyebrow">Login</span>
+        <h2 class="card-title" style="font-size: 1.6rem;">Hisobingizga kiring</h2>
+        <p>Standart Django login form ishlatilmoqda.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="button-row">
+                <button type="submit" class="btn btn-primary">Kirish</button>
+                <a href="{% url 'signup' %}" class="btn btn-secondary">Ro'yxatdan o'tish</a>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock content %}

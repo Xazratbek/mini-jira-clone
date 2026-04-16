@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.name }} | PulseBoard{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">{{ organization.name }}</h1>
+    <p class="page-subtitle">{{ organization.description|default:"Organization haqida tavsif kiritilmagan." }}</p>
+</section>
+
+<section class="grid stagger">
+    <article class="panel">
+        <h2 class="card-title">Asosiy ma'lumotlar</h2>
+        <div class="grid" style="margin-top: 1rem;">
+            <div class="stat-card">
+                <span>Owner</span>
+                <strong>{{ organization.owner.get_full_name|default:organization.owner.username }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>A'zolar</span>
+                <strong>{{ member_count }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Loyihalar</span>
+                <strong>{{ project_count }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Ochiq tasklar</span>
+                <strong>{{ active_tasks_count }}</strong>
+            </div>
+        </div>
+        <div class="button-row" style="margin-top: 1rem;">
+            {% if can_manage_organization %}
+            <a href="{% url 'organization-update' organization.pk %}" class="btn btn-primary">Tahrirlash</a>
+            <a href="{% url 'organization-member-add' organization.pk %}" class="btn btn-secondary">A'zo qo'shish</a>
+            {% endif %}
+            <a href="{% url 'project-list' %}" class="btn btn-secondary">Loyihalar</a>
+        </div>
+    </article>
+
+    <article class="panel">
+        <h2 class="card-title">A'zolar</h2>
+        <div class="comment-stream">
+            {% for membership in organization.memberships.all %}
+            <div class="comment-card">
+                <header>
+                    <div>
+                        <strong>{{ membership.user.get_full_name|default:membership.user.username }}</strong>
+                        <div class="helper-text">{{ membership.user.email }}</div>
+                    </div>
+                    <span class="badge">{{ membership.get_role_display }}</span>
+                </header>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+ </section>
+{% endblock content %}

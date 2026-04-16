@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Organizations | PulseBoard{% endblock title %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Workspace va organizations.</h1>
+    <p class="page-subtitle">Sizga tegishli yoki siz a'zo bo'lgan organizationlar ro'yxati.</p>
+</section>
+
+<section class="button-row stagger" style="margin-bottom: 1rem;">
+    <a href="{% url 'organization-create' %}" class="btn btn-primary">Yangi organization</a>
+    <a href="{% url 'project-create' %}" class="btn btn-secondary">Loyiha yaratish</a>
+</section>
+
+{% if organizations %}
+<section class="grid stagger">
+    {% for organization in organizations %}
+    <article class="panel">
+        <h2 class="card-title">{{ organization.name }}</h2>
+        <p class="card-text">{{ organization.description|default:"Tavsif kiritilmagan." }}</p>
+        <div class="grid" style="margin-top: 1rem;">
+            <div class="stat-card">
+                <span>Owner</span>
+                <strong>{{ organization.owner.get_full_name|default:organization.owner.username }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Status</span>
+                <strong>{% if organization.is_active %}Faol{% else %}Nofaol{% endif %}</strong>
+            </div>
+        </div>
+        <div class="button-row" style="margin-top: 1rem;">
+            <a href="{{ organization.get_absolute_url }}" class="btn btn-primary">Ochish</a>
+            {% if organization.id in manageable_org_ids %}
+            <a href="{% url 'organization-update' organization.pk %}" class="btn btn-secondary">Tahrirlash</a>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="panel empty-state stagger">
+    <h2 class="card-title">Organization topilmadi.</h2>
+    <p>Hozircha sizga tegishli workspace yo'q.</p>
+    <a href="{% url 'organization-create' %}" class="btn btn-primary">Organization yaratish</a>
+</section>
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Loyihalar | PulseBoard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .project-topline {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1rem;
+    }
+
+    .project-card {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .project-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .project-card h3 {
+        font-family: "Unbounded", sans-serif;
+        font-size: 1.05rem;
+    }
+
+    .project-card p {
+        color: var(--muted);
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+    }
+
+    .meta-box {
+        padding: 0.85rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meta-box span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin-bottom: 0.28rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+
+    .meta-box strong {
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-header stagger">
+    <h1 class="page-title">Jamoa boardlari va ownership bloklari.</h1>
+    <p class="page-subtitle">Mavjud `ProjectListView` qaytargan loyihalar card ko'rinishida berildi. Har bir kartada owner, members soni, yaratilgan sana va amallar bir joyga yig'ilgan.</p>
+</section>
+
+<section class="project-topline stagger">
+    <div class="panel" style="flex: 1 1 420px;">
+        <p class="card-text">Bu bo'lim Jiradagi project directory ruhida yozilgan. Birinchi fokus kartalarning scannability'si, ikkinchisi esa tezkor actionlar.</p>
+    </div>
+    <div class="button-row">
+        <a href="{% url 'project-create' %}" class="btn btn-primary">Yangi loyiha</a>
+        <a href="{% url 'task-create' %}" class="btn btn-secondary">Task qo'shish</a>
+    </div>
+</section>
+
+{% if projects %}
+<section class="project-grid stagger">
+    {% for project in projects %}
+        <article class="panel project-card">
+            <div class="project-head">
+                <div>
+                    <h3><a href="{{ project.get_absolute_url }}" style="text-decoration: none;">{{ project.name }}</a></h3>
+                </div>
+                <span class="badge {% if project.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                    {% if project.is_active %}Faol{% else %}Nofaol{% endif %}
+                </span>
+            </div>
+
+            <p>{{ project.description|truncatewords:26 }}</p>
+
+            <div class="meta-grid">
+                <div class="meta-box">
+                    <span>Owner</span>
+                    <strong>{{ project.owner.get_full_name|default:project.owner.username }}</strong>
+                </div>
+                <div class="meta-box">
+                    <span>Members</span>
+                    <strong>{{ project.members.count }} ta</strong>
+                </div>
+                <div class="meta-box">
+                    <span>Created</span>
+                    <strong>{{ project.created_at|date:"d.m.Y" }}</strong>
+                </div>
+                <div class="meta-box">
+                    <span>Workspace</span>
+                    <strong>PulseBoard</strong>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a href="{{ project.get_absolute_url }}" class="btn btn-primary">Ochish</a>
+                <a href="{% url 'project-update' project.pk %}" class="btn btn-secondary">Tahrirlash</a>
+                <a href="{% url 'project-delete' project.pk %}" class="btn btn-danger">O'chirish</a>
+            </div>
+        </article>
+    {% endfor %}
+</section>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1">«</a>
+        <a href="?page={{ page_obj.previous_page_number }}">‹</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="current">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">»</a>
+    {% endif %}
+</div>
+{% endif %}
+{% else %}
+<section class="panel empty-state">
+    <span class="eyebrow">No projects</span>
+    <h2 class="card-title">Hali loyiha yaratilmagan.</h2>
+    <p>Avval bir loyiha yarating, keyin unga tasklar bog'lang. Frontend oqimi `project-create` endpointiga ulanadi.</p>
+    <a href="{% url 'project-create' %}" class="btn btn-primary">Birinchi loyiha</a>
+</section>
+{% endif %}
+{% endblock content %}
